@@ -27,7 +27,7 @@ The project is divided into four phases:
 - [ ] Phase 1: Hardware validation and wired USB data logging.
 - [ ] Phase 2: Bluetooth bridge implementation.
 - [ ] Phase 3: Machine Learning dataset generation and model training.
-- [ ] Target Completion: October 2026.
+- [ ] Target Completion: first week of October 2026.
 
 ## Authors and Acknowledgment
 //
