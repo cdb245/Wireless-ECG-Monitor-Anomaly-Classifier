@@ -18,8 +18,6 @@ exactly at 4ms, we'll have main.c that holds the core logic of the microcontroll
 #define analog_reference 1
 #define adc_pin 0 //A0 -> we are referring to the physical pin
 
-
-volatile uint8_t interrupt_occured = 0;
 volatile uint16_t value = 0;
 
 ISR(TIMER1_COMPA_vect){
