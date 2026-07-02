@@ -57,7 +57,7 @@ static void timer1_init(void){
 
     const int timer_duration_ms = 4; //250Hz frequency
     uint16_t ocrval = (uint16_t)(2000 * timer_duration_ms); 
-    OCR1A = ocrval - 1; //f ocna =  FclkI/O / (2*N*(1 + OCRnA)) -> 1 + OCR1A = total cycles 
+    OCR1A = ocrval - 1; //f ocna =  FclkI/O / (N*(1 + OCRnA)) -> 1 + OCR1A = total cycles 
 
     TIMSK1 |= (1 << OCIE1A); //enable the timer int
 
