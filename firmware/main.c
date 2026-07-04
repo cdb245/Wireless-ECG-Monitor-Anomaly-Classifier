@@ -4,7 +4,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <util/atomic.h>
-#include "../avr_common/uart.h"
+
+
 
 //TO DO
 /*write code that has to be uploaded to the arduino: the objective is to sample the analog signal
