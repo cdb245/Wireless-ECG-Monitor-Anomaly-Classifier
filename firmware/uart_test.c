@@ -14,7 +14,7 @@ int main(){
     uint16_t mock_ADC = 835; //fix a value to send for testing
 
     uint8_t upper = 0x80 | (mock_ADC >> 7); //this sets the first bit of upper to 1 and takes the first 3 bits of my 10 bits int
-    uint8_t lower = mock_ADC & 0x7F; //this takes the remaining 7 bits from mock_ADC leaving the last bit set to 0
+    uint8_t lower = mock_ADC & 0x7F; //this takes the remaining 7 bits from mock_ADC leaving the high bit set to 0
 
     //why? I need a flag that tells me if what I'm reading is the upper half or the lower half, this way I'm sure that the upper half will always have
     //a value >= 128 (first bit is forced to 1) and the lower half will be < 128 (first bit is forced to 0) -> easy check!

@@ -17,9 +17,20 @@ exactly at 4ms, we'll have main.c that holds the core logic of the microcontroll
     3. ISR logic -> write actual ISR, inside this the ADC will be commanded to read the voltage and store the value
 */
 
+//TO DO 2
+/*
+we have to configure two pins (D4 and D5) as input to get the leads off/on values from AD8232 sensor: if LO+/- is high then the leads are off
+else the leads are on and we can procede with acquiring the signal (TO BE DISABLED WHEN TESTING WITHOUT SENSOR ? boh vedremo)
+*/
+
 //USING TIMER 1
 #define TCCRB_MASK ((1 << WGM12) | (1 << CS11)) //prescaler set to 8 (CS11 bit set to 1) and CTC mode enabled by setting WGM12 to 1, this ensures that the timer resets when it hits the compare value
 #define adc_pin 0 //A0 -> we are referring to the physical pin
+
+//macros for digital pin 
+#define SET_PIN_MODE_INPUT(port, pin) DDR ## port &= ~(1 << pin)
+#define PIN_READ(port, pin)(PIN ## port & (1 << pin)) 
+#define CONNECTED (!PIN_READ(D, 4) && !PIN_READ(D, 5)) //leads are on when pins are low
 
 volatile uint8_t adc_ready = 0; //no conversion started
 volatile uint16_t value = 0;
@@ -75,9 +86,10 @@ ISR(ADC_vect){
 
 
 int main(void){
-    printf_init();
-
+    
     cli(); //disable global interrupts during init
+    SET_PIN_MODE_INPUT(D, 4); //L0+
+    SET_PIN_MODE_INPUT(D, 5); //L0-
     timer1_init();
     adc_init();
     sei(); //enable global interrupts
@@ -86,29 +98,33 @@ int main(void){
     int buffer[100];
     int len = 0;
     while(1){
-        uint16_t sample;
-        uint8_t ready;
+        if(CONNECTED){
+            uint16_t sample;
+            uint8_t ready;
 
-         /* what does this do:
-            the atomic block is a cojncept that's used to disable and then enable again interrupts
-            ATOMIC_RESTORESTATE means that the interrupts will be enabled by restoring previously saved values of status register.
-            In this case the next ISR of any pending interrupt can be started immediately after this statement, in contrast of 
-            sei() function where the next instruction after sei is executed before any pending input
-        */
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            ready = adc_ready;
-            sample = value;
-            if(ready){
-                adc_ready = 0;
+            /* what does this do:
+                the atomic block is a cojncept that's used to disable and then enable again interrupts
+                ATOMIC_RESTORESTATE means that the interrupts will be enabled by restoring previously saved values of status register.
+                In this case the next ISR of any pending interrupt can be started immediately after this statement, in contrast of 
+                sei() function where the next instruction after sei is executed before any pending input
+            */
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+                ready = adc_ready;
+                sample = value;
+                if(ready){
+                    adc_ready = 0;
+                }
             }
-        }
 
-        if(ready){
-            buffer[(len + 1) % 100] = sample; //used for testing
-            len++;
-        }else{
-            _delay_ms(1);
-        }
+            if(ready){
+                buffer[(len + 1) % 100] = sample; //used for testing
+                len++;
+            }else{
+                _delay_ms(1);
+            }
 
-    }
+        }else {
+        //show flat line
+        }
+    } 
 }
