@@ -1,7 +1,5 @@
 #include "uart.h"
 
- //add interrupts
-
 
 /*
 
@@ -40,15 +38,9 @@ ISR(USART_TX_vect){
 }
 
 
-void uart_init(uint32_t baud, uint8_t high_speed){
+void uart_init(uint32_t baud){
 
     uint8_t speed = 16;
-
-    if(high_speed == 1){
-        speed = 8; //U2X0 (from datasheet) changes the divisor from 16 to 8, so high speed is a switch that dictates this choice 
-        UCSR0A |= MASK(U2X0); //enable high speed
-    }
-
     baud = (F_CPU / (speed * baud)) - 1; //we need uint32_t bc with uint16_t the value trunkates and we get the wrong value
 
     UBRR0H = (baud & 0x0F00) >> 8; //masking the four bits in the pos of the baud rate and then shifting down so they fit in a 8 bit value

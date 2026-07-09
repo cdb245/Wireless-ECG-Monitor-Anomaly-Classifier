@@ -5,6 +5,8 @@
 #include <util/delay.h>
 #include <util/atomic.h>
 
+#include "macros.c"
+
 
 
 //TO DO
@@ -14,8 +16,6 @@ exactly at 4ms, we'll have main.c that holds the core logic of the microcontroll
     2. ADC config -> search infos about this
     3. ISR logic -> write actual ISR, inside this the ADC will be commanded to read the voltage and store the value
 */
-
-#define MASK(PIN) (1 << PIN)
 
 //USING TIMER 1
 #define TCCRB_MASK ((1 << WGM12) | (1 << CS11)) //prescaler set to 8 (CS11 bit set to 1) and CTC mode enabled by setting WGM12 to 1, this ensures that the timer resets when it hits the compare value
