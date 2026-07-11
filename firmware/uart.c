@@ -47,7 +47,7 @@ void uart_init(uint32_t baud){
     UBRR0L = (baud & 0x00FF); //so we have the lower 4 bits
 
     //only set TX bits because we do not need to receive anything
-    UCSR0B |= MASK(TXEN0) | MASK(TXCIE0); 
+    UCSR0B |= MASK(TXEN0) | MASK(TXCIE0); //TXEN0 set transmit bit, TXCIE0 Transmit complete interrupt enable bit is set
 
 }
 
