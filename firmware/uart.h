@@ -7,8 +7,8 @@
 #include <util/delay.h>
 #include <util/atomic.h>
 
-#include "macros.c"
 
+#define MASK(PIN) (1 << (PIN))
 void uart_init(uint32_t baud);
 void uart_send_byte(uint8_t c);
 void uart_send_array(uint8_t *c,uint16_t len );

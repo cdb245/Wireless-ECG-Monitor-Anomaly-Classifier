@@ -24,7 +24,7 @@
 # put here the file containing the main() routine
 # to be uploaded on the avr
 # you can add multiple files, they will be all generated
-BINS=main.elf uart_test.elf
+BINS=main.elf
 
 # put here the additional .o files you want to generate
 # one .c file for each .o should be present

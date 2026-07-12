@@ -5,7 +5,7 @@
 #include <util/delay.h>
 #include <util/atomic.h>
 
-#include "macros.c"
+#include "uart.h"
 
 
 
@@ -28,9 +28,12 @@ else the leads are on and we can procede with acquiring the signal (TO BE DISABL
 #define adc_pin 0 //A0 -> we are referring to the physical pin
 
 //macros for digital pin 
-#define SET_PIN_MODE_INPUT(port, pin) DDR ## port &= ~(1 << pin)
-#define PIN_READ(port, pin)(PIN ## port & (1 << pin)) 
+#define SET_PIN_MODE_INPUT(port, pin) DDR ## port &= ~MASK(pin)
+#define SET_PIN_HIGH(port, pin) (PORT ## port |= MASK(pin)) //this enables the pull up resistor bc we configured the pins as inputs -> then if floating the default value will be set to 1
+#define PIN_READ(port, pin)(PIN ## port & MASK(pin)) 
+
 #define CONNECTED (!PIN_READ(D, 4) && !PIN_READ(D, 5)) //leads are on when pins are low
+
 
 volatile uint8_t adc_ready = 0; //no conversion started
 volatile uint16_t value = 0;
@@ -88,15 +91,21 @@ ISR(ADC_vect){
 int main(void){
     
     cli(); //disable global interrupts during init
+
     SET_PIN_MODE_INPUT(D, 4); //L0+
+    SET_PIN_HIGH(D, 4);
     SET_PIN_MODE_INPUT(D, 5); //L0-
+    SET_PIN_HIGH(D, 5); //enable pull up resistors
+
+    uart_init(19200); //set baudrate
     timer1_init();
     adc_init();
+
     sei(); //enable global interrupts
 
+    uint8_t bytes_to_send = 2;
+    uint8_t array[bytes_to_send];
     adc_start_conversion();
-    int buffer[100];
-    int len = 0;
     while(1){
         if(CONNECTED){
             uint16_t sample;
@@ -117,14 +126,25 @@ int main(void){
             }
 
             if(ready){
-                buffer[(len + 1) % 100] = sample; //used for testing
-                len++;
+
+                uint8_t upper = 0x80 | (sample >> 7); //this sets the first bit of upper to 1 and takes the first 3 bits of my 10 bits int
+                uint8_t lower = sample & 0x7F; //this takes the remaining 7 bits from mock_ADC leaving the high bit set to 0
+
+                //why? I need a flag that tells me if what I'm reading is the upper half or the lower half, this way I'm sure that the upper half will always have
+                //a value >= 128 (first bit is forced to 1) and the lower half will be < 128 (first bit is forced to 0) -> easy check!
+
+                array[0] = upper;
+                array[1] = lower;
+                uart_send_array(array, bytes_to_send);
+                
             }else{
                 _delay_ms(1);
             }
 
         }else {
-        //show flat line
+            array[0] = PIN_READ(D, 4);
+            array[1] = PIN_READ(D, 5);
+            uart_send_array(array, bytes_to_send);
         }
     } 
 }

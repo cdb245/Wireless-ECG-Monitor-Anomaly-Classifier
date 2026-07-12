@@ -1,1 +1,0 @@
-#define MASK(PIN) (1 << PIN)
