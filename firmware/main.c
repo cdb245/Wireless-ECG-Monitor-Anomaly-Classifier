@@ -142,9 +142,7 @@ int main(void){
             }
 
         }else {
-            array[0] = PIN_READ(D, 4);
-            array[1] = PIN_READ(D, 5);
-            uart_send_array(array, bytes_to_send);
+            uart_send_byte(0); //control that leads are off
         }
     } 
 }
